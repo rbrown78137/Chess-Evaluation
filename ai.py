@@ -11,17 +11,7 @@ def minmax(board, alpha=-1000, beta=1000, maximize=True, depth=2):
     if maximize:
         max_eval = - 1000
         legal_moves = list(board.legal_moves)
-        move_evals = []
-        for move in legal_moves:
-            board.push(move)
-            current_eval = evaluate_board(board)
-            board.pop()
-            move_evals.append(current_eval)
-        pairs = [(legal_moves[i],move_evals[i]) for i in range(len(legal_moves))]
-        pairs.sort(key=lambda x:x[1])
-        if len(legal_moves)>num_moves_consider:
-            pairs = pairs[0:num_moves_consider]
-        for move,_ in pairs:
+        for move in legal_moves:#,_ in pairs:
             board.push(move)
             eval = minmax(board, alpha, beta, False,depth-1)
             max_eval = max(max_eval,eval)
@@ -33,17 +23,7 @@ def minmax(board, alpha=-1000, beta=1000, maximize=True, depth=2):
     if not maximize:
         min_eval = 1000
         legal_moves = list(board.legal_moves)
-        move_evals = []
-        for move in legal_moves:
-            board.push(move)
-            current_eval = evaluate_board(board)
-            board.pop()
-            move_evals.append(current_eval)
-        pairs = [(legal_moves[i], move_evals[i]) for i in range(len(legal_moves))]
-        pairs.sort(key=lambda x:x[1],reverse=True)
-        if len(legal_moves) > num_moves_consider:
-            pairs = pairs[0:num_moves_consider]
-        for move,_ in pairs:
+        for move in legal_moves:#,_ in pairs:
             board.push(move)
             eval = minmax(board, alpha, beta, True,depth-1)
             min_eval = min(min_eval,eval)
@@ -71,22 +51,6 @@ def evaluate_board(position):
                 running_eval -= 200
             if board_matrix[row][col] == 'p':
                 running_eval -= 1
-                # if row>0:
-                #     for other_row in range(row+1, 8):
-                #         if board_matrix[other_row][col] == "p":
-                #             running_eval +=0.5
-                # if 0 < col < 7:
-                #     has_pawn = False
-                #     for other_row in range(8):
-                #         if board_matrix[other_row][col-1] == "p":
-                #             has_pawn = True
-                #         if board_matrix[other_row][col + 1] == "p":
-                #             has_pawn = True
-                #     if not has_pawn:
-                #         running_eval+= 0.5
-                # if row < 7:
-                #     if not board_matrix[row+1][col] == '.':
-                #         running_eval += 0.5
             if board_matrix[row][col] == 'R':
                 running_eval += 5
             if board_matrix[row][col] == 'N':
@@ -99,28 +63,15 @@ def evaluate_board(position):
                 running_eval += 200
             if board_matrix[row][col] == 'P':
                 running_eval += 1
-                # if row>0:
-                #     for other_row in range(row):
-                #         if board_matrix[other_row][col] == "P":
-                #             running_eval -=0.5
-                # if 0 < col < 7:
-                #     has_pawn = False
-                #     for other_row in range(8):
-                #         if board_matrix[row][col-1] == "P":
-                #             has_pawn = True
-                #         if board_matrix[row][col + 1] == "P":
-                #             has_pawn = True
-                #     if not has_pawn:
-                #         running_eval -= 0.5
-                # if row>0:
-                #     if not board_matrix[row-1][col] == '.':
-                #         running_eval -= 0.5
     return running_eval
 
 if __name__ == "__main__":
     board = chess.Board()
     while True:
         legal_moves = list(board.legal_moves)
+        if len(legal_moves) == 0:
+            print("You Lose!")
+            break
         move_valid = True
         print(board)
         print("What move would you like to play?\n")
@@ -133,6 +84,9 @@ if __name__ == "__main__":
             best_move = None
             best_eval = 1000
             for enemy_move in legal_moves:
+                if len(legal_moves) == 0:
+                    print("You Win!")
+                    break
                 board.push(enemy_move)
                 eval = minmax(board,maximize=True)
                 if eval <= best_eval:
@@ -142,7 +96,7 @@ if __name__ == "__main__":
             board.push(best_move)
             print("Enemy Played: ")
             print(best_move)
-        except chess.IllegalMoveError:
-            pass
-        # except Exception:
-        #     print("This move was invalid! \n")
+        # except chess.IllegalMoveError:
+        #     pass
+        except Exception:
+            print("This move was invalid! \n")
