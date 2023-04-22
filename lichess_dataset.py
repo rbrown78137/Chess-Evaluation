@@ -8,6 +8,8 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import chess
 
+import utils
+
 
 class ChessDataset(Dataset):
     def __init__(self):
@@ -28,7 +30,7 @@ class ChessDataset(Dataset):
         label = torch.tensor([chess_position[1]]).to(self.device).to(torch.float)
         board = chess.Board(chess_position[0])
         turn = board.turn
-        board_matrix = make_matrix(board)
+        board_matrix = utils.make_matrix(board)
         for row in range(8):
             for col in range(8):
                 if board_matrix[row][col] == 'r':
@@ -58,20 +60,3 @@ class ChessDataset(Dataset):
         if not turn:
             image = image * -1
         return image, label
-
-
-def make_matrix(board): #type(board) == chess.Board()
-    pgn = board.epd()
-    foo = []  #Final board
-    pieces = pgn.split(" ", 1)[0]
-    rows = pieces.split("/")
-    for row in rows:
-        foo2 = []  #This is the row I make
-        for thing in row:
-            if thing.isdigit():
-                for i in range(0, int(thing)):
-                    foo2.append('.')
-            else:
-                foo2.append(thing)
-        foo.append(foo2)
-    return foo
